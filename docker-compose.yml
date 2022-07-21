@@ -1,0 +1,39 @@
+version: '3.1'
+services:
+  tileserver:
+    image: maptiler/tileserver-gl:latest
+    command: -p 8080
+    container_name: tileserver
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - ./TileServer:/data
+  cache:
+    image: 0815flo/swifttileservercache:2.1.0-beta
+    container_name: tileserver-cache
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - ./Cache:/SwiftTileserverCache/Cache
+      - ./Templates:/SwiftTileserverCache/Templates
+      - ./TileServer:/SwiftTileserverCache/TileServer
+#     - ./Markers/:/SwiftTileserverCache/Markers
+    environment:
+      TILE_SERVER_URL: http://tileserver:8080 # Leave this unless tileserver is external!
+      TILE_CACHE_MAX_AGE_MINUTES: 1400 # 1 Days
+      TILE_CACHE_DELAY_SECONDS: 3600 # 1 Hour
+      STATIC_CACHE_MAX_AGE_MINUTES: 1400 # 1 Days
+      STATIC_CACHE_DELAY_SECONDS: 3600 # 1 Hour
+      STATIC_MUTLI_CACHE_MAX_AGE_MINUTES: 60 # 1 Hour
+      STATIC_MULTI_CACHE_DELAY_SECONDS: 900 # 15 Minutes
+      MARKER_CACHE_MAX_AGE_MINUTES: 1440 # 1 Day
+      MARKER_CACHE_DELAY_SECONDS: 3600 # 1 Hour
+      TEMPLATES_CACHE_DELAY_SECONDS: 60 # 1 Minute
+      ADMIN_USERNAME: xxxxx
+      ADMIN_PASSWORD: xxxxx
+      PREVIEW_LATIDUDE: xxxxx
+      PREVIEW_LONGITUDE: xxxxx
+#      TILE_URL_MAPBOX_SATTELITE: domain.com/tile/bright/{z}/{x}/{y}{@scale}.{format}
+      TILE_URL_MAPBOX_SATTELITE: https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}{@scale}.{format}?access_token=XXX
+    ports:
+      - 9000:9000
